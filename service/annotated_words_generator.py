@@ -16,7 +16,7 @@ def generate_annotated_words(sentence):
     i = 0
     while i != len(text):
         if i == (len(text) - 1):
-            i = i + 1
+            word = word + text[i]
             if len(word) > 0:
                 words.append(word)
             break
