@@ -1,22 +1,21 @@
 import streamlit as st
 from annotated_text import annotated_text
+from io import StringIO
+import json
+from service.annotated_words_generator import generate_annotated_words
 
-"""
-# Annotated text example
 
-Below is an example of how to use the annotated_text function:
-"""
+st.header('Text Annotation')
+uploaded_file = st.file_uploader("Upload the JSON File", type="json", accept_multiple_files=False)
+st.text("")
 
-annotated_text(
-    "This ",
-    ("is", "verb", "#8ef"),
-    " some ",
-    ("annotated", "adj", "#faa"),
-    ("text", "noun", "#afa"),
-    " for those of ",
-    ("you", "pronoun", "#fea"),
-    " who ",
-    ("like", "verb", "#8ef"),
-    " this sort of ",
-    ("thing", "noun", "#afa"),
-)
+if uploaded_file is not None:
+     stringio = StringIO(uploaded_file.getvalue().decode("utf-8"))
+     string_data = stringio.read()
+     json_data = json.loads(string_data)
+     sentences = json_data['document']['content']['sentences']
+
+     for sentence in sentences:
+         words = generate_annotated_words(sentence)
+         annotated_text(*words)
+         st.text("")
