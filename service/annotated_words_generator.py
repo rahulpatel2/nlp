@@ -5,7 +5,11 @@ def get_end_index_and_type(entities, start):
     for entitiy in entities:
         if ('start' in entitiy['textSpan']['span'] and 'end' in entitiy['textSpan']['span'] and entitiy['textSpan']['span']['start'] == start) or \
                 not 'start' in entitiy['textSpan']['span'] and 'end' in entitiy['textSpan']['span'] and entitiy['textSpan']['span']['end'] > start:
-            return entitiy['textSpan']['span']['end'], entitiy['type']
+
+            type = "Default"
+            if 'type' in entitiy:
+                type = entitiy['type']
+            return entitiy['textSpan']['span']['end'], type
     return None, None
 
 def generate_annotated_words(sentence):
@@ -21,7 +25,12 @@ def generate_annotated_words(sentence):
                 words.append(word)
             break
 
-        end_index, type = get_end_index_and_type(sentence['entities'], i)
+        if 'entities' in sentence:
+            end_index, type = get_end_index_and_type(sentence['entities'], i)
+        else:
+            end_index = None
+            type = None
+
         if end_index is None:
             word = word + text[i]
             i = i + 1
