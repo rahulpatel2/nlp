@@ -45,6 +45,9 @@ def generate_annotated_words(sentence):
                 color = constant.TAGS[type]
             words.append((new_word, type, color))
 
+            if next_index >= len(text) -1:
+                break
+
             if i != (len(text) - 1):
                 i = next_index
             word = ""
