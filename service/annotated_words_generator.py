@@ -1,7 +1,7 @@
 import constant
 
 
-def get_end_index_and_type(entities, start):
+def get_entities_data(entities, start):
     for entitiy in entities:
         if ('start' in entitiy['textSpan']['span'] and 'end' in entitiy['textSpan']['span'] and entitiy['textSpan']['span']['start'] == start) or \
                 not 'start' in entitiy['textSpan']['span'] and 'end' in entitiy['textSpan']['span'] and entitiy['textSpan']['span']['end'] > start:
@@ -9,8 +9,15 @@ def get_end_index_and_type(entities, start):
             type = "Default"
             if 'type' in entitiy:
                 type = entitiy['type']
-            return entitiy['textSpan']['span']['end'], type
-    return None, None
+
+            wiki_data_ids = []
+            if 'entitySenses' in entitiy:
+                for entity_sense in entitiy['entitySenses']:
+                    if 'kgEntityId' in entity_sense:
+                        wiki_data_ids.append(entity_sense['kgEntityId'])
+
+            return entitiy['textSpan']['span']['end'], type, wiki_data_ids
+    return None, None, []
 
 def generate_annotated_words(sentence):
     text = sentence['text']
@@ -26,10 +33,11 @@ def generate_annotated_words(sentence):
             break
 
         if 'entities' in sentence:
-            end_index, type = get_end_index_and_type(sentence['entities'], i)
+            end_index, type, wiki_data_ids = get_entities_data(sentence['entities'], i)
         else:
             end_index = None
             type = None
+            wiki_data_ids = []
 
         if end_index is None:
             word = word + text[i]
@@ -43,7 +51,7 @@ def generate_annotated_words(sentence):
             color = constant.DEFAULT_TAG_COLOR
             if type in constant.TAGS:
                 color = constant.TAGS[type]
-            words.append((new_word, type, color))
+            words.append([(new_word, type, color), wiki_data_ids])
 
             if next_index >= len(text) -1:
                 break
